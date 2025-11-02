@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { saveSchedule } from '@/services/storage';
+import { saveSchedule, getMachine } from '@/services/storage';
 import { MaintenanceSchedule, RecurrenceType } from '@/types';
 import { addDays, addWeeks, addMonths } from 'date-fns';
+import { scheduleRecurringNotification } from '@/services/notifications';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddMaintenanceDialogProps {
   open: boolean;
@@ -23,6 +25,7 @@ export function AddMaintenanceDialog({
   existingSchedule,
   onScheduleSaved,
 }: AddMaintenanceDialogProps) {
+  const { toast } = useToast();
   const [recurrence, setRecurrence] = useState<RecurrenceType>('Weekly');
   const [intervalDays, setIntervalDays] = useState('7');
   const [nextDueDate, setNextDueDate] = useState('');
@@ -39,88 +42,94 @@ export function AddMaintenanceDialog({
     }
   }, [existingSchedule, open]);
 
-  const calculateNextDate = () => {
-    const baseDate = nextDueDate ? new Date(nextDueDate) : new Date();
-    switch (recurrence) {
-      case 'Daily':
-        return addDays(baseDate, 1).toISOString();
-      case 'Weekly':
-        return addWeeks(baseDate, 1).toISOString();
-      case 'Monthly':
-        return addMonths(baseDate, 1).toISOString();
-      case 'Custom':
-        return addDays(baseDate, parseInt(intervalDays) || 7).toISOString();
-      default:
-        return baseDate.toISOString();
-    }
-  };
-
   const handleSubmit = async () => {
-    const schedule: MaintenanceSchedule = {
-      id: existingSchedule?.id || Date.now().toString(),
-      machineId,
-      recurrence,
-      intervalDays: recurrence === 'Custom' ? parseInt(intervalDays) : undefined,
-      nextDueDate: nextDueDate ? new Date(nextDueDate).toISOString() : new Date().toISOString(),
-      createdAt: existingSchedule?.createdAt || new Date().toISOString(),
-    };
+    try {
+      const schedule: MaintenanceSchedule = {
+        id: existingSchedule?.id || Date.now().toString(),
+        machineId,
+        recurrence,
+        intervalDays: recurrence === 'Custom' ? parseInt(intervalDays) : undefined,
+        nextDueDate: nextDueDate ? new Date(nextDueDate).toISOString() : new Date().toISOString(),
+        createdAt: existingSchedule?.createdAt || new Date().toISOString(),
+      };
 
-    await saveSchedule(schedule);
-    onScheduleSaved();
-    onOpenChange(false);
+      await saveSchedule(schedule);
+
+      // Schedule notification
+      const machine = await getMachine(machineId);
+      if (machine) {
+        const notificationId = await scheduleRecurringNotification(schedule, machine.name);
+        schedule.notificationId = notificationId;
+        await saveSchedule(schedule);
+      }
+
+      toast({ title: existingSchedule ? 'تم تحديث الجدول' : 'تم جدولة الصيانة' });
+      onScheduleSaved();
+      onOpenChange(false);
+    } catch (error) {
+      toast({ 
+        title: 'فشل جدولة الصيانة', 
+        description: 'تأكد من تفعيل صلاحية الإشعارات',
+        variant: 'destructive' 
+      });
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass">
         <DialogHeader>
-          <DialogTitle>{existingSchedule ? 'Edit' : 'Schedule'} Maintenance</DialogTitle>
+          <DialogTitle className="text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {existingSchedule ? 'تعديل' : 'جدولة'} الصيانة
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="recurrence">Recurrence *</Label>
+            <Label htmlFor="recurrence" className="font-semibold">التكرار *</Label>
             <Select value={recurrence} onValueChange={(v) => setRecurrence(v as RecurrenceType)}>
-              <SelectTrigger id="recurrence">
+              <SelectTrigger id="recurrence" className="mt-2">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Daily">Daily</SelectItem>
-                <SelectItem value="Weekly">Weekly</SelectItem>
-                <SelectItem value="Monthly">Monthly</SelectItem>
-                <SelectItem value="Custom">Custom</SelectItem>
+                <SelectItem value="Daily">يومي</SelectItem>
+                <SelectItem value="Weekly">أسبوعي</SelectItem>
+                <SelectItem value="Monthly">شهري</SelectItem>
+                <SelectItem value="Custom">مخصص</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {recurrence === 'Custom' && (
             <div>
-              <Label htmlFor="interval">Interval (days) *</Label>
+              <Label htmlFor="interval" className="font-semibold">الفاصل الزمني (أيام) *</Label>
               <Input
                 id="interval"
                 type="number"
                 value={intervalDays}
                 onChange={(e) => setIntervalDays(e.target.value)}
                 min="1"
+                className="mt-2"
               />
             </div>
           )}
 
           <div>
-            <Label htmlFor="nextDue">Next Due Date *</Label>
+            <Label htmlFor="nextDue" className="font-semibold">الموعد القادم *</Label>
             <Input
               id="nextDue"
               type="date"
               value={nextDueDate}
               onChange={(e) => setNextDueDate(e.target.value)}
+              className="mt-2"
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            إلغاء
           </Button>
-          <Button onClick={handleSubmit} disabled={!nextDueDate}>
-            {existingSchedule ? 'Update' : 'Schedule'}
+          <Button onClick={handleSubmit} disabled={!nextDueDate} className="btn-gradient">
+            {existingSchedule ? 'تحديث' : 'جدولة'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Moon, Sun, Bell, BellOff, Database, Download, Upload } from 'lucide-react';
+import { ArrowRight, Moon, Sun, Bell, BellOff, Database, Download, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -44,19 +44,19 @@ export default function SettingsPage() {
       }
     }
 
-    toast({ title: 'Settings updated' });
+    toast({ title: 'تم تحديث الإعدادات' });
   };
 
   const handleLoadDemo = async () => {
     await loadDemoData();
-    toast({ title: 'Demo data loaded successfully' });
+    toast({ title: 'تم تحميل البيانات التجريبية بنجاح' });
     navigate('/');
   };
 
   const handleClearData = async () => {
-    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+    if (confirm('هل أنت متأكد من حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.')) {
       await clearAllData();
-      toast({ title: 'All data cleared' });
+      toast({ title: 'تم حذف جميع البيانات' });
       navigate('/');
     }
   };
@@ -76,31 +76,35 @@ export default function SettingsPage() {
     a.href = url;
     a.download = `factory-backup-${Date.now()}.json`;
     a.click();
-    toast({ title: 'Data exported successfully' });
+    toast({ title: 'تم تصدير البيانات بنجاح' });
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-3xl font-bold">Settings</h1>
+    <div className="min-h-screen p-4 md:p-6 lg:p-8">
+      <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+        <div className="glass rounded-2xl p-6 md:p-8 animate-fade-in-scale">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              الإعدادات
+            </h1>
+          </div>
         </div>
 
-        <Card>
+        <Card className="glass animate-fade-in-scale stagger-1">
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>Customize the look and feel</CardDescription>
+            <CardTitle>المظهر</CardTitle>
+            <CardDescription>تخصيص شكل التطبيق</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {settings.darkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                {settings.darkMode ? <Moon className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />}
                 <div>
-                  <p className="font-medium">Dark Mode</p>
-                  <p className="text-sm text-muted-foreground">Toggle dark theme</p>
+                  <p className="font-semibold">الوضع الداكن</p>
+                  <p className="text-sm text-muted-foreground">تفعيل الثيم الداكن</p>
                 </div>
               </div>
               <Switch
@@ -111,18 +115,18 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass animate-fade-in-scale stagger-2">
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>Manage maintenance reminders</CardDescription>
+            <CardTitle>الإشعارات</CardTitle>
+            <CardDescription>إدارة تنبيهات الصيانة</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {settings.notificationsEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
+                {settings.notificationsEnabled ? <Bell className="h-5 w-5 text-primary" /> : <BellOff className="h-5 w-5 text-muted-foreground" />}
                 <div>
-                  <p className="font-medium">Enable Notifications</p>
-                  <p className="text-sm text-muted-foreground">Get maintenance reminders</p>
+                  <p className="font-semibold">تفعيل الإشعارات</p>
+                  <p className="text-sm text-muted-foreground">استقبال تذكيرات الصيانة</p>
                 </div>
               </div>
               <Switch
@@ -133,23 +137,23 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass animate-fade-in-scale stagger-3">
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
-            <CardDescription>Manage your factory data</CardDescription>
+            <CardTitle>إدارة البيانات</CardTitle>
+            <CardDescription>نسخ احتياطي وإدارة بيانات المصنع</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button onClick={handleLoadDemo} variant="outline" className="w-full justify-start">
-              <Database className="h-4 w-4 mr-2" />
-              Load Demo Data
+            <Button onClick={handleLoadDemo} variant="outline" className="w-full justify-start hover:bg-primary/10">
+              <Database className="h-4 w-4 ml-2" />
+              تحميل بيانات تجريبية
             </Button>
-            <Button onClick={handleExport} variant="outline" className="w-full justify-start">
-              <Download className="h-4 w-4 mr-2" />
-              Export Backup
+            <Button onClick={handleExport} variant="outline" className="w-full justify-start hover:bg-primary/10">
+              <Download className="h-4 w-4 ml-2" />
+              تصدير نسخة احتياطية
             </Button>
             <Button onClick={handleClearData} variant="destructive" className="w-full justify-start">
-              <Database className="h-4 w-4 mr-2" />
-              Clear All Data
+              <Trash2 className="h-4 w-4 ml-2" />
+              حذف جميع البيانات
             </Button>
           </CardContent>
         </Card>

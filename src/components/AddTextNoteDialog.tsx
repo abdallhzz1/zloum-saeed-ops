@@ -39,37 +39,41 @@ export function AddTextNoteDialog({ open, onOpenChange, machineId, onNoteAdded }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass">
         <DialogHeader>
-          <DialogTitle>Add Text Note</DialogTitle>
+          <DialogTitle className="text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            إضافة ملاحظة نصية
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="note-content">Note *</Label>
+            <Label htmlFor="note-content" className="font-semibold">الملاحظة *</Label>
             <Textarea
               id="note-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter your note here..."
+              placeholder="اكتب ملاحظتك هنا..."
+              className="mt-2"
               rows={5}
             />
           </div>
           <div>
-            <Label htmlFor="note-tags">Tags (comma separated)</Label>
+            <Label htmlFor="note-tags" className="font-semibold">الوسوم (مفصولة بفاصلة)</Label>
             <Input
               id="note-tags"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g., urgent, inspection"
+              placeholder="مثال: عاجل، تفتيش"
+              className="mt-2"
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            إلغاء
           </Button>
-          <Button onClick={handleSubmit} disabled={!content.trim()}>
-            Add Note
+          <Button onClick={handleSubmit} disabled={!content.trim()} className="btn-gradient">
+            إضافة
           </Button>
         </DialogFooter>
       </DialogContent>

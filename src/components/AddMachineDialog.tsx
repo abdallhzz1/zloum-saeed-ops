@@ -41,49 +41,53 @@ export function AddMachineDialog({ open, onOpenChange, sectionId, onMachineAdded
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass">
         <DialogHeader>
-          <DialogTitle>Add New Machine</DialogTitle>
+          <DialogTitle className="text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            إضافة آلة جديدة
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="machine-name">Machine Name *</Label>
+            <Label htmlFor="machine-name" className="font-semibold">اسم الآلة *</Label>
             <Input
               id="machine-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Generator A"
+              placeholder="مثال: مولد كهربائي A"
+              className="mt-2"
             />
           </div>
           <div>
-            <Label htmlFor="machine-code">Machine Code *</Label>
+            <Label htmlFor="machine-code" className="font-semibold">كود الآلة *</Label>
             <Input
               id="machine-code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="e.g., GEN-001"
+              placeholder="مثال: GEN-001"
+              className="mt-2 font-mono"
             />
           </div>
           <div>
-            <Label htmlFor="machine-state">Initial State</Label>
+            <Label htmlFor="machine-state" className="font-semibold">الحالة الأولية</Label>
             <Select value={state} onValueChange={(v) => setState(v as MachineState)}>
-              <SelectTrigger id="machine-state">
+              <SelectTrigger id="machine-state" className="mt-2">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Working">Working</SelectItem>
-                <SelectItem value="Stopped">Stopped</SelectItem>
-                <SelectItem value="Needs Maintenance">Needs Maintenance</SelectItem>
+                <SelectItem value="Working">تعمل</SelectItem>
+                <SelectItem value="Stopped">متوقفة</SelectItem>
+                <SelectItem value="Needs Maintenance">تحتاج صيانة</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            إلغاء
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || !code.trim()}>
-            Add Machine
+          <Button onClick={handleSubmit} disabled={!name.trim() || !code.trim()} className="btn-gradient">
+            إضافة
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -36,36 +36,41 @@ export function AddSectionDialog({ open, onOpenChange, onSectionAdded }: AddSect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass">
         <DialogHeader>
-          <DialogTitle>Add New Section</DialogTitle>
+          <DialogTitle className="text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            إضافة قسم جديد
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name">Section Name *</Label>
+            <Label htmlFor="name" className="font-semibold">اسم القسم *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Electrical Department"
+              placeholder="مثال: قسم الكهرباء"
+              className="mt-2"
             />
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="font-semibold">الوصف</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder="وصف اختياري للقسم"
+              className="mt-2"
+              rows={3}
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            إلغاء
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim()}>
-            Add Section
+          <Button onClick={handleSubmit} disabled={!name.trim()} className="btn-gradient">
+            إضافة
           </Button>
         </DialogFooter>
       </DialogContent>
