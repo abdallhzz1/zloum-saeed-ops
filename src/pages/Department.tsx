@@ -9,7 +9,7 @@ import { Section, Machine, MachineState } from '@/types';
 import { AddMachineDialog } from '@/components/AddMachineDialog';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { generateMaintenanceReport } from '@/services/pdf';
+import { generateSectionReportSimple } from '@/services/pdfSimple';
 import { useToast } from '@/hooks/use-toast';
 import { subMonths } from 'date-fns';
 
@@ -51,20 +51,7 @@ export default function Department() {
     if (!section) return;
     
     try {
-      const endDate = new Date();
-      const startDate = subMonths(endDate, 1);
-      const notes = await getNotes();
-      const events = await getMaintenanceEvents();
-      
-      await generateMaintenanceReport(
-        section,
-        machines,
-        notes.filter(n => machines.some(m => m.id === n.machineId)),
-        events.filter(e => machines.some(m => m.id === e.machineId)),
-        startDate,
-        endDate
-      );
-      
+      await generateSectionReportSimple(section, machines.length);
       toast({ title: 'تم إنشاء التقرير بنجاح' });
     } catch (error) {
       toast({ title: 'فشل إنشاء التقرير', variant: 'destructive' });

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, Plus, Mic, Camera, FileText, Play, Trash2, Calendar, FileDown, CheckCircle } from 'lucide-react';
+import { ArrowRight, Plus, Mic, Camera, FileText, Trash2, Calendar, FileDown, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getMachine, getNotes, getSchedules, saveMachine, saveMaintenanceEvent, deleteNote } from '@/services/storage';
+import { getMachine, getNotes, getSchedules, saveMachine, saveMaintenanceEvent, deleteNote, saveNote, saveSchedule } from '@/services/storage';
 import { Machine, Note, MaintenanceSchedule, MachineState } from '@/types';
 import { AddTextNoteDialog } from '@/components/AddTextNoteDialog';
 import { AddMaintenanceDialog } from '@/components/AddMaintenanceDialog';
@@ -14,10 +14,9 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Camera as CapCamera, CameraResultType } from '@capacitor/camera';
 import { useToast } from '@/hooks/use-toast';
-import { generateMachineReport } from '@/services/pdf';
-import { getMaintenanceEvents } from '@/services/storage';
-import { subMonths } from 'date-fns';
+import { generateMachineReportSimple } from '@/services/pdfSimple';
 import { getNextMaintenanceDate } from '@/services/notifications';
+import { startRecording, stopRecording } from '@/services/audio';
 
 const stateInfo: Record<MachineState, { color: string; label: string; icon: string }> = {
   'Working': { color: 'badge-working', label: 'تعمل', icon: '✓' },
@@ -35,6 +34,7 @@ export default function MachineDetail() {
   const [showTextDialog, setShowTextDialog] = useState(false);
   const [showMaintenanceDialog, setShowMaintenanceDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
 
   const loadData = async () => {
     if (!machineId) return;
@@ -81,7 +81,7 @@ export default function MachineDetail() {
         createdAt: new Date().toISOString(),
       };
       
-      await import('@/services/storage').then(({ saveNote }) => saveNote(note));
+      await saveNote(note);
       await loadData();
       toast({ title: 'تم إضافة الصورة بنجاح' });
     } catch (error) {
@@ -93,21 +93,18 @@ export default function MachineDetail() {
     if (!machine || !schedule) return;
     
     try {
-      // Save maintenance event
       await saveMaintenanceEvent({
         id: Date.now().toString(),
         machineId: machine.id,
         completedAt: new Date().toISOString(),
       });
 
-      // Update machine last maintenance date
       const updated = { ...machine, lastMaintenanceDate: new Date().toISOString() };
       await saveMachine(updated);
 
-      // Update schedule with next due date
       const nextDate = getNextMaintenanceDate(schedule);
       const updatedSchedule = { ...schedule, nextDueDate: nextDate.toISOString() };
-      await import('@/services/storage').then(({ saveSchedule }) => saveSchedule(updatedSchedule));
+      await saveSchedule(updatedSchedule);
 
       await loadData();
       toast({ title: 'تم تسجيل الصيانة بنجاح' });
@@ -120,11 +117,7 @@ export default function MachineDetail() {
     if (!machine) return;
     
     try {
-      const endDate = new Date();
-      const startDate = subMonths(endDate, 1);
-      const events = await getMaintenanceEvents(machine.id);
-      
-      await generateMachineReport(machine, notes, events, startDate, endDate);
+      await generateMachineReportSimple(machine);
       toast({ title: 'تم إنشاء التقرير بنجاح' });
     } catch (error) {
       toast({ title: 'فشل إنشاء التقرير', variant: 'destructive' });
@@ -136,6 +129,38 @@ export default function MachineDetail() {
       await deleteNote(noteId);
       await loadData();
       toast({ title: 'تم حذف الملاحظة' });
+    }
+  };
+
+  const handleStartAudioRecording = async () => {
+    if (isRecording) {
+      try {
+        const audioData = await stopRecording();
+        
+        const note: Note = {
+          id: Date.now().toString(),
+          machineId: machineId!,
+          type: 'audio',
+          content: audioData,
+          createdAt: new Date().toISOString(),
+        };
+        
+        await saveNote(note);
+        await loadData();
+        setIsRecording(false);
+        toast({ title: 'تم حفظ التسجيل الصوتي' });
+      } catch (error) {
+        toast({ title: 'فشل حفظ التسجيل', variant: 'destructive' });
+        setIsRecording(false);
+      }
+    } else {
+      try {
+        await startRecording();
+        setIsRecording(true);
+        toast({ title: 'جاري التسجيل...' });
+      } catch (error) {
+        toast({ title: 'فشل بدء التسجيل', description: 'تأكد من صلاحيات الميكروفون', variant: 'destructive' });
+      }
     }
   };
 
@@ -292,9 +317,14 @@ export default function MachineDetail() {
                   <Camera className="h-4 w-4 ml-2" />
                   التقاط صورة
                 </Button>
-                <Button size="sm" variant="outline" disabled>
+                <Button 
+                  onClick={handleStartAudioRecording} 
+                  size="sm" 
+                  variant={isRecording ? "destructive" : "outline"}
+                  className={isRecording ? "animate-pulse" : ""}
+                >
                   <Mic className="h-4 w-4 ml-2" />
-                  تسجيل صوتي (قريباً)
+                  {isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                 </Button>
               </div>
 
@@ -321,6 +351,11 @@ export default function MachineDetail() {
                       {note.type === 'text' && <p className="text-sm leading-relaxed">{note.content}</p>}
                       {note.type === 'image' && (
                         <img src={note.content} alt="ملاحظة" className="rounded-lg max-h-64 object-cover w-full" />
+                      )}
+                      {note.type === 'audio' && (
+                        <audio controls className="w-full">
+                          <source src={note.content} type="audio/webm" />
+                        </audio>
                       )}
                       {note.description && (
                         <p className="text-xs text-muted-foreground mt-2 italic">{note.description}</p>
@@ -364,6 +399,21 @@ export default function MachineDetail() {
                     <CardContent className="p-2">
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(note.createdAt), 'PP', { locale: ar })}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </TabsContent>
+
+              <TabsContent value="audio" className="space-y-3">
+                {notes.filter(n => n.type === 'audio').map((note) => (
+                  <Card key={note.id} className="glass">
+                    <CardContent className="pt-4">
+                      <audio controls className="w-full mb-2">
+                        <source src={note.content} type="audio/webm" />
+                      </audio>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(note.createdAt), 'PPp', { locale: ar })}
                       </p>
                     </CardContent>
                   </Card>
