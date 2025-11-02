@@ -187,31 +187,35 @@ export default function MachineDetail() {
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="glass rounded-2xl p-6 md:p-8 animate-fade-in-scale">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="glass rounded-2xl p-4 md:p-6 animate-fade-in-scale">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate(-1)}
-              className="hover:bg-primary/10"
+              className="h-10 w-10 hover:bg-primary/10 rounded-lg"
             >
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate">
                 {machine.name}
               </h1>
-              <p className="text-muted-foreground font-mono mt-1">{machine.code}</p>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">{machine.code}</p>
             </div>
-            <Badge className={`${stateInfo[machine.state].color} text-sm px-3 py-1`}>
+            <Badge className={`${stateInfo[machine.state].color} text-xs px-2.5 py-1 shrink-0`}>
               {stateInfo[machine.state].icon} {stateInfo[machine.state].label}
             </Badge>
+            <Button 
+              onClick={handleGenerateReport} 
+              size="icon"
+              variant="outline" 
+              className="h-10 w-10 hover:bg-primary/10 rounded-lg shrink-0"
+              title="تصدير تقرير PDF"
+            >
+              <FileDown className="h-5 w-5" />
+            </Button>
           </div>
-          
-          <Button onClick={handleGenerateReport} variant="outline" className="hover:bg-primary/10">
-            <FileDown className="h-4 w-4 ml-2" />
-            تصدير تقرير PDF
-          </Button>
         </div>
 
         {/* Status Card */}
@@ -308,23 +312,32 @@ export default function MachineDetail() {
                 <TabsTrigger value="image">صور ({notes.filter(n => n.type === 'image').length})</TabsTrigger>
               </TabsList>
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Button onClick={() => setShowTextDialog(true)} size="sm" className="btn-gradient">
-                  <FileText className="h-4 w-4 ml-2" />
-                  ملاحظة نصية
+              <div className="flex gap-2 mb-4">
+                <Button 
+                  onClick={() => setShowTextDialog(true)} 
+                  size="icon"
+                  className="h-10 w-10 btn-gradient rounded-lg"
+                  title="ملاحظة نصية"
+                >
+                  <FileText className="h-5 w-5" />
                 </Button>
-                <Button onClick={handleTakePhoto} size="sm" variant="outline">
-                  <Camera className="h-4 w-4 ml-2" />
-                  التقاط صورة
+                <Button 
+                  onClick={handleTakePhoto} 
+                  size="icon"
+                  variant="outline"
+                  className="h-10 w-10 rounded-lg"
+                  title="التقاط صورة"
+                >
+                  <Camera className="h-5 w-5" />
                 </Button>
                 <Button 
                   onClick={handleStartAudioRecording} 
-                  size="sm" 
+                  size="icon"
                   variant={isRecording ? "destructive" : "outline"}
-                  className={isRecording ? "animate-pulse" : ""}
+                  className={`h-10 w-10 rounded-lg ${isRecording ? "animate-pulse" : ""}`}
+                  title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                 >
-                  <Mic className="h-4 w-4 ml-2" />
-                  {isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+                  <Mic className="h-5 w-5" />
                 </Button>
               </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, AlertCircle, Settings, Factory, Wrench } from 'lucide-react';
+import { Plus, AlertCircle, Factory, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -75,29 +75,19 @@ export default function Sections() {
       <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
         {/* Header */}
         <div className="glass rounded-2xl p-6 md:p-8 animate-fade-in-scale">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-                <Factory className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  مصنع ظلوم وسعيد
-                </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                  <Wrench className="h-4 w-4" />
-                  نظام إدارة الصيانة والعمليات
-                </p>
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+              <Factory className="h-7 w-7 text-white" />
             </div>
-            <Button 
-              onClick={() => navigate('/settings')} 
-              variant="outline"
-              className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
-            >
-              <Settings className="h-4 w-4 ml-2" />
-              الإعدادات
-            </Button>
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                مصنع ظلوم وسعيد
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                <Wrench className="h-3.5 w-3.5" />
+                نظام إدارة الصيانة
+              </p>
+            </div>
           </div>
         </div>
 

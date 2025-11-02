@@ -81,35 +81,43 @@ export default function Department() {
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="glass rounded-2xl p-6 md:p-8 animate-fade-in-scale">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="glass rounded-2xl p-4 md:p-6 animate-fade-in-scale">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/')}
-              className="hover:bg-primary/10 transition-all"
+              className="h-10 w-10 hover:bg-primary/10 transition-all rounded-lg"
             >
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate">
                 {section.name}
               </h1>
               {section.description && (
-                <p className="text-muted-foreground mt-1">{section.description}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{section.description}</p>
               )}
             </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => setShowAddDialog(true)} className="btn-gradient">
-              <Plus className="h-4 w-4 ml-2" />
-              إضافة آلة
-            </Button>
-            <Button onClick={handleGenerateReport} variant="outline" className="hover:bg-primary/10">
-              <FileDown className="h-4 w-4 ml-2" />
-              تصدير تقرير PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowAddDialog(true)} 
+                size="icon"
+                className="h-10 w-10 btn-gradient rounded-lg"
+                title="إضافة آلة"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+              <Button 
+                onClick={handleGenerateReport} 
+                size="icon"
+                variant="outline" 
+                className="h-10 w-10 hover:bg-primary/10 rounded-lg"
+                title="تصدير تقرير PDF"
+              >
+                <FileDown className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
 

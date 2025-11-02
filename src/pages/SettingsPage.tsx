@@ -82,12 +82,17 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
       <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
-        <div className="glass rounded-2xl p-6 md:p-8 animate-fade-in-scale">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+        <div className="glass rounded-2xl p-4 md:p-6 animate-fade-in-scale">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/')}
+              className="h-10 w-10 hover:bg-primary/10 rounded-lg"
+            >
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               الإعدادات
             </h1>
           </div>
